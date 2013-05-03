@@ -294,6 +294,10 @@ function steady(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Fl
     return(nlsolve(f, iv, 1:m.n_endo, 1:m.n_endo))
 end
 
+export steady
+
 include("decision_rules.jl")
+
+export decision_rules
 
 end
