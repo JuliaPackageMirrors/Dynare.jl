@@ -1,11 +1,15 @@
-include("Dynare.jl")
+# Translation of example1.mod
+
+require("Dynare")
+
+using Dynare
 
 m =
-Dynare.@modfile begin
-    Dynare.@var y c k a h b
-    Dynare.@varexo e u
-    Dynare.@parameters beta rho alpha delta theta psi tau
-    Dynare.@model begin
+@modfile begin
+    @var y c k a h b
+    @varexo e u
+    @parameters beta rho alpha delta theta psi tau
+    @model begin
         c*theta*h^(1+psi) = (1-alpha)*y
         k = beta*(((exp(b)*c)/(exp(b(+1))*c(+1)))*(exp(b(+1))*alpha*y(+1)+(1-delta)*k))
         y = exp(a)*(k(-1)^alpha)*(h^(1-alpha))
@@ -15,17 +19,17 @@ Dynare.@modfile begin
     end
 end
 
-Dynare.compute_model_info(m)
+compute_model_info(m)
 
-println(m)
-
-calib = [ :alpha => 0.36,
+calib = [
+         :alpha => 0.36,
          :rho   => 0.95,
          :tau   => 0.025,
          :beta  => 0.99,
          :delta => 0.025,
          :psi   => 0.0,
-         :theta => 2.95 ]
+         :theta => 2.95
+         ]
 
 initval = [
            :y => 1.08068253095672,
@@ -35,16 +39,17 @@ initval = [
            :a => 0.0,
            :b => 0.0,
            :e => 0.0,
-           :u => 0.0 ]
+           :u => 0.0
+           ]
 
-s = Dynare.steady(m, calib, initval)
+s = steady(m, calib, initval)
 
-println("Steady state: ", s)
+print_steady(m, s)
+println()
 
-(gy, gu, eigs) = Dynare.decision_rules(m, calib, s)
+(gy, gu, eigs) = decision_rules(m, calib, s)
 
 println("Eigenvalues: ", eigs)
+println()
 
-println(gy)
-
-println(gu)
+print_decision_rules(m, gy, gu)
