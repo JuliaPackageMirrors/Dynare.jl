@@ -115,3 +115,30 @@ function decision_rules(m::Model, calib::Dict{Symbol, Float64}, steady_state::Ve
 
     (gy, gu, eigs)
 end
+
+function print_decision_rules(m::Model, gy::Matrix{Float64}, gu::Matrix{Float64})
+    println("Decision Rules:")
+    @printf "%10s " ""
+    for j in 1:m.n_endo
+        @printf "%10s " m.endo[j]
+    end
+    @printf "\n"
+
+    for i in 1:m.n_back_mixed
+        @printf "%6s(-1) " m.endo[m.zeta_back_mixed[i]]
+
+        for j in 1:m.n_endo
+            @printf "%10.6f " gy[j, i]
+        end
+        @printf "\n"
+    end
+
+    for i in 1:m.n_exo
+        @printf "%10s " m.exo[i]
+
+        for j in 1:m.n_endo
+            @printf "%10.6f " gu[j, i]
+        end
+        @printf "\n"
+    end
+end

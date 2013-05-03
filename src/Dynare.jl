@@ -294,10 +294,17 @@ function steady(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Fl
     return(nlsolve(f, iv, 1:m.n_endo, 1:m.n_endo))
 end
 
-export steady
+function print_steady(m::Model, steady_state::Vector{Float64})
+    println("Steady State:")
+    for i in 1:m.n_endo
+        @printf "%10s %10.6f\n" m.endo[i] steady_state[i]
+    end
+end
+
+export steady, print_steady
 
 include("decision_rules.jl")
 
-export decision_rules
+export decision_rules, print_decision_rules
 
 end
