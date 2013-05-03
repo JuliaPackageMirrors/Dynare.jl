@@ -29,7 +29,7 @@ calib = [
          :delta => 0.025,
          :psi   => 0.0,
          :theta => 2.95
-         ]
+        ]
 
 initval = [
            :y => 1.08068253095672,
@@ -40,12 +40,11 @@ initval = [
            :b => 0.0,
            :e => 0.0,
            :u => 0.0
-           ]
+          ]
 
-s = steady(m, calib, initval)
+s = steady_state(m, calib, initval)
 
-print_steady(m, s)
-println()
+print_steady_state(m, s)
 
 (gy, gu, eigs) = decision_rules(m, calib, s)
 

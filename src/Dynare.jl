@@ -287,21 +287,22 @@ function initval2vec(m::Model, initval::Dict{Symbol, Float64})
     return(y)
 end
 
-function steady(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Float64})
+function steady_state(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Float64})
     p = calib2vec(m, calib)
     iv = initval2vec(m, initval)
     f = y -> m.static_mf(y, zeros(m.n_exo), p)
     return(nlsolve(f, iv, 1:m.n_endo, 1:m.n_endo))
 end
 
-function print_steady(m::Model, steady_state::Vector{Float64})
+function print_steady_state(m::Model, steady_state::Vector{Float64})
     println("Steady State:")
     for i in 1:m.n_endo
         @printf "%10s %10.6f\n" m.endo[i] steady_state[i]
     end
+    println()
 end
 
-export steady, print_steady
+export steady_state, print_steady_state
 
 include("qz.jl")
 include("decision_rules.jl")
