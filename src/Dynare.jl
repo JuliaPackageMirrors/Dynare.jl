@@ -163,7 +163,7 @@ function compute_var_categories(m::Model)
     end
 end
 
-include("deriv.jl")
+include("symbolic.jl")
 
 function compute_static_mf(m::Model)
     reqs = Array(MathExpr, m.n_endo)
@@ -303,6 +303,7 @@ end
 
 export steady, print_steady
 
+include("qz.jl")
 include("decision_rules.jl")
 
 export decision_rules, print_decision_rules
