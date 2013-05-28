@@ -287,11 +287,29 @@ function initval2vec(m::Model, initval::Dict{Symbol, Float64})
     return(y)
 end
 
-function steady_state(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Float64})
+function exoval2vec(m::Model, exoval::Dict{Symbol, Float64})
+    x = Array(Float64, m.n_exo)
+    for i in 1:m.n_exo
+        x[i] = exoval[m.exo[i]]
+    end
+    return(x)
+end
+
+function steady_state(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Float64}, exoval::Dict{Symbol, Float64})
     p = calib2vec(m, calib)
     iv = initval2vec(m, initval)
-    f = y -> m.static_mf(y, zeros(m.n_exo), p)
+    ev = exoval2vec(m, exoval)
+    f = y -> m.static_mf(y, ev, p)
     return(nlsolve(f, iv, 1:m.n_endo, 1:m.n_endo))
+end
+
+# Version without exogenous variables, which are assumed to have a zero value
+function steady_state(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symbol, Float64})
+    exoval = Dict{Symbol, Float64}()
+    for i in 1:m.n_exo
+        exoval[m.exo[i]] = 0.0
+    end
+    return steady_state(m, calib, initval, exoval)
 end
 
 function print_steady_state(m::Model, steady_state::Vector{Float64})
