@@ -65,9 +65,9 @@ remove_line_blocks(e::Any) = e
 
 function remove_line_blocks(e::Expr)
     if e.head == :block
-        assert(sum(map(y->y.head != :line, e.args)) == 1)
+        assert(sum(map(y->(typeof(y) == Symbol || y.head != :line), e.args)) == 1)
         for x in e.args
-            if x.head != :line
+            if typeof(x) == Symbol || x.head != :line
                 return x
             end
         end
