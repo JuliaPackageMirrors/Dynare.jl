@@ -327,4 +327,8 @@ include("decision_rules.jl")
 
 export decision_rules, print_decision_rules
 
+include("perfect_foresight_simul.jl")
+
+export perfect_foresight_simul!
+
 end
