@@ -4,8 +4,6 @@
 #   the other columns are the guess values, and will be replaced by the simulated values
 # - exopath is a matrix with time in columns (T) and with exogenous variables in rows
 
-require("suitesparse")
-
 function perfect_foresight_simul!(m::Model, endopath::Matrix{Float64}, exopath::Matrix{Float64}, calib::Dict{Symbol, Float64})
     maxit = 500
     tolerance = 1e-6

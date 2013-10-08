@@ -12,9 +12,9 @@ function decision_rules(m::Model, calib::Dict{Symbol, Float64}, steady_state::Ve
     # Deal with static variables
     if m.n_static > 0
         S = jacob[:, m.n_back_mixed + m.zeta_static]
-        (Q,R) = qr(S)
-        @assert rank(R) == m.n_static
-        A = qTmulQR(qrfact(S), A)
+        F = qrfact(S)
+        @assert rank(F[:R]) == m.n_static
+        A = F[:Q]'*A
     end
 
     D = [ A[m.n_static+1:end, m.n_back_mixed + m.zeta_back_mixed] A[m.n_static+1:end, m.n_back_mixed+m.n_endo+1:end];

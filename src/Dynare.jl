@@ -78,7 +78,7 @@ function remove_line_blocks(e::Expr)
 end
 
 macro model(x)
-    M_.eqs = map(remove_line_blocks, filter(y->typeof(y)!=LineNumberNode, x.args))
+    M_.eqs = map(remove_line_blocks, filter(y->(typeof(y)!=LineNumberNode && (typeof(y) != Expr || y.head != :line)), x.args))
 end
 
 macro modfile(x)
@@ -147,7 +147,7 @@ function compute_var_categories(m::Model)
 
     # Compute beta_back and beta_fwrd
     for i = 1:m.n_fwrd_mixed
-        if contains(m.zeta_mixed, m.zeta_fwrd_mixed[i])
+        if m.zeta_fwrd_mixed[i] in m.zeta_mixed
             push!(m.beta_fwrd, i)
         else
             push!(m.pi_fwrd, i)
@@ -155,7 +155,7 @@ function compute_var_categories(m::Model)
     end
 
     for i = 1:m.n_back_mixed
-        if contains(m.zeta_mixed, m.zeta_back_mixed[i])
+        if m.zeta_back_mixed[i] in m.zeta_mixed
             push!(m.beta_back, i)
         else
             push!(m.pi_back, i)

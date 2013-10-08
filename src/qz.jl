@@ -1,13 +1,13 @@
-import Base.BlasInt
+import Base.LinAlg.BlasInt
 
 # Equivalent of mjdgges
 # S and T are modified in place
 function qz!(S::Matrix{Float64}, T::Matrix{Float64})
     function selctg(alphar::Ptr{Float64}, alphai::Ptr{Float64}, beta::Ptr{Float64})
         const criterium::Float64 = 1.0 + 1e-6
-        ai = unsafe_ref(alphai, 1)
-        ar = unsafe_ref(alphar, 1)
-        b = unsafe_ref(beta, 1)
+        ai = unsafe_load(alphai, 1)
+        ar = unsafe_load(alphar, 1)
+        b = unsafe_load(beta, 1)
 
         convert(BlasInt, ar^2 + ai^2 < criterium * b^2)
     end
