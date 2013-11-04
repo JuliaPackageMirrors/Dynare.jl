@@ -98,8 +98,8 @@ function scan_expr(e::Expr, endo::Vector{Symbol}, lag_lead::Dict{Symbol,(Int,Int
             shift = e.args[2]
             @assert isa(shift, Integer)
             (la, le) = lag_lead[v]
-            la = max(-shift, la)
-            le = max(shift, le)
+            la = maximum(-shift, la)
+            le = maximum(shift, le)
             lag_lead[v] = (la, le)
         else
             map(x->scan_expr(x,endo,lag_lead), e.args[2:end])

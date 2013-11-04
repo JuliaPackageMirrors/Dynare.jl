@@ -26,11 +26,11 @@ function nlsolve(func::Function, x::Vector{Float64}, j1, j2)
 
     f = 0.5*dot(fvec, fvec)
 
-    if max(abs(fvec)) < tolf
+    if maximum(abs(fvec)) < tolf
         return x
     end
 
-    stpmax = stpmx*max(sqrt(dot(x, x)), nn) 
+    stpmax = stpmx*maximum(sqrt(dot(x, x)), nn) 
     first_time = 1
     for its = 1:maxit
         println("Iteration $its")
@@ -48,14 +48,14 @@ function nlsolve(func::Function, x::Vector{Float64}, j1, j2)
         (x,f,fvec,check)=lnsrch(xold,fold,g,p,stpmax,func,j1,j2)
 
         if check == 1
-            den = max(f, 0.5*nn)
-            if max(abs(g).*max([abs(x[j2]) ones(nn,1)], (), 2))/den >= tolmin
+            den = maximum(f, 0.5*nn)
+            if maximum(abs(g).*maximum([abs(x[j2]) ones(nn,1)], (), 2))/den >= tolmin
                 error("Spurious convergence")
             end
             return(x)
         end
 
-        if max(abs(fvec)) < tolf
+        if maximum(abs(fvec)) < tolf
             return(x)
         end
     end
@@ -83,7 +83,7 @@ function lnsrch(xold::Vector{Float64},fold::Float64,g::Vector{Float64},p::Vector
 
     slope = dot(g,p)
 
-    test = max(abs(p)'./max([abs(xold[j2])';ones(1,nn)],(),1))
+    test = maximum(abs(p)'./maximum([abs(xold[j2])';ones(1,nn)],(),1))
     alamin = tolx/test
 
     if alamin > 0.1
@@ -140,7 +140,7 @@ function lnsrch(xold::Vector{Float64},fold::Float64,g::Vector{Float64},p::Vector
                 alam2 = alam 
                 f2 = f 
                 fold2 = fold 
-                alam = max(tmplam, 0.1*alam) 
+                alam = maximum(tmplam, 0.1*alam) 
             end
         end
     end
