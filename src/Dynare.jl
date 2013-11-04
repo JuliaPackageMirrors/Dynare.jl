@@ -163,6 +163,8 @@ function compute_var_categories(m::Model)
     end
 end
 
+import Calculus.differentiate
+
 include("symbolic.jl")
 
 function compute_static_mf(m::Model)
@@ -173,7 +175,7 @@ function compute_static_mf(m::Model)
     for i = 1:m.n_endo
         reqs[i] = to_static(homogeneize(m.eqs[i]), m.endo)
         for j = 1:m.n_endo
-            jacob[i,j] = deriv(reqs[i], m.endo[j])
+            jacob[i,j] = differentiate(reqs[i], m.endo[j])
         end
     end
 
@@ -226,10 +228,10 @@ function compute_dynamic_mf(m::Model)
     for i = 1:m.n_endo
         reqs[i] = subst_lag_lead(homogeneize(m.eqs[i]), lag_dict, lead_dict)
         for j = 1:ndyn
-            jacob[i,j] = deriv(reqs[i], dynvars[j])
+            jacob[i,j] = differentiate(reqs[i], dynvars[j])
         end
         for j = 1:m.n_exo
-            jacob[i,ndyn+j] = deriv(reqs[i], m.exo[j])
+            jacob[i,ndyn+j] = differentiate(reqs[i], m.exo[j])
         end
     end
 
