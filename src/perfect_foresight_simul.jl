@@ -46,7 +46,7 @@ function perfect_foresight_simul!(m::Model, endopath::Matrix{Float64}, exopath::
             i_cols += m.n_endo
         end
 
-        err = maximum(abs(res))
+        err = max(abs(res))
 
         if err < tolerance
             endopath = reshape(Y, m.n_endo, T+2)
