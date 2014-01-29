@@ -1,5 +1,7 @@
 module Dynare
 
+using NLsolve
+
 export @var, @varexo, @parameters, @model, @modfile
 
 typealias MathExpr Union(Expr,Symbol,Number)
@@ -31,8 +33,10 @@ type Model
     n_back_mixed::Int
     n_fwrd_mixed::Int
     n_dynamic::Int
-    static_mf::Function # Static model function (y,x,p)->(residual,g1)
-    dynamic_mf::Function # Dynamic model function (yy,x,p)->(residual,g1) where yy = (y-, y, y+)
+    static_mf!::Function # Static model function (y,x,p,residual)
+    static_mg!::Function # Static model jacobian (y,x,p,jacobian)
+    dynamic_mf!::Function # Dynamic model function (yy,x,p,residual) where yy = (y-, y, y+)
+    dynamic_mg!::Function # Dynamic model Jacobian (yy,x,p,jacobian)
 end
 
 Model() = Model(Array(Symbol, 0), Array(Symbol, 0), Array(Symbol, 0), Array(MathExpr, 0),
@@ -44,8 +48,10 @@ Model() = Model(Array(Symbol, 0), Array(Symbol, 0), Array(Symbol, 0), Array(Math
                 Array(Int, 0), Array(Int, 0),
                 Array(Int, 0), Array(Int, 0),
                 0, 0, 0, 0, 0, 0, 0,
-                (y::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64})->(Array(Float64, 0),Array(Float64, 0)),
-                (yy::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64})->(Array(Float64, 0),Array(Float64, 0)))
+                (y::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fvec::Vector{Float64}) -> nothing,
+                (y::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fjac::Matrix{Float64}) -> nothing,
+                (yy::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fvec::Vector{Float64}) -> nothing,
+                (yy::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fjac::Matrix{Float64}) -> nothing)
 
 macro var(x...)
     M_.endo = [x...]
@@ -196,10 +202,31 @@ function compute_static_mf(m::Model)
             jacob[i,j] = subst_symb(jacob[i,j], env)
         end
     end
-    
-    m.static_mf = eval(:((y::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64})
-                         -> ([ $(reqs...) ],
-                             reshape([ $(jacob...) ], $(m.n_endo), $(m.n_endo)))))
+
+    # Construct static model functions
+    f_assigns = Array(Expr, 0)
+    g_assigns = Array(Expr, 0)
+    for i = 1:m.n_endo
+        push!(f_assigns, :(fvec[$i] = $(reqs[i])))
+        for j = 1:m.n_endo
+            push!(g_assigns, :(fjac[$i, $j] = $(jacob[i,j])))
+        end
+    end
+
+    @eval begin
+        function static_mf!(y::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fvec::Vector{Float64})
+            $(f_assigns...)
+        end
+    end
+
+    @eval begin
+        function static_mg!(y::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fjac::Matrix{Float64})
+            $(g_assigns...)
+        end
+    end
+
+    m.static_mf! = static_mf!
+    m.static_mg! = static_mg!
 end
 
 function compute_dynamic_mf(m::Model)
@@ -253,9 +280,30 @@ function compute_dynamic_mf(m::Model)
         end
     end
     
-    m.dynamic_mf = eval(:((yy::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64})
-                           -> ([ $(reqs...) ],
-                               reshape([ $(jacob...) ], $(m.n_endo), $(njcols)))))
+    # Construct dynamic model functions
+    f_assigns = Array(Expr, 0)
+    g_assigns = Array(Expr, 0)
+    for i = 1:m.n_endo
+        push!(f_assigns, :(fvec[$i] = $(reqs[i])))
+        for j = 1:njcols
+            push!(g_assigns, :(fjac[$i, $j] = $(jacob[i,j])))
+        end
+    end
+
+    @eval begin
+        function dynamic_mf!(yy::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fvec::Vector{Float64})
+            $(f_assigns...)
+        end
+    end
+
+    @eval begin
+        function dynamic_mg!(yy::Vector{Float64}, x::Vector{Float64}, p::Vector{Float64}, fjac::Matrix{Float64})
+            $(g_assigns...)
+        end
+    end
+
+    m.dynamic_mf! = dynamic_mf!
+    m.dynamic_mg! = dynamic_mg!
 end
 
 export compute_model_info
@@ -270,8 +318,6 @@ function compute_model_info(m::Model)
     compute_dynamic_mf(m)
     nothing
 end
-
-include("newton.jl")
 
 function calib2vec(m::Model, calib::Dict{Symbol, Float64})
     p = Array(Float64, m.n_param)
@@ -301,8 +347,11 @@ function steady_state(m::Model, calib::Dict{Symbol, Float64}, initval::Dict{Symb
     p = calib2vec(m, calib)
     iv = initval2vec(m, initval)
     ev = exoval2vec(m, exoval)
-    f = y -> m.static_mf(y, ev, p)
-    return(nlsolve(f, iv, 1:m.n_endo, 1:m.n_endo))
+    mf!(y::Vector{Float64}, fvec::Vector{Float64}) = m.static_mf!(y, ev, p, fvec)
+    mg!(y::Vector{Float64}, fjac::Matrix{Float64}) = m.static_mg!(y, ev, p, fjac)
+    r = nlsolve(mf!, mg!, iv, show_trace = true)
+    @assert converged(r)
+    return(r.zero)
 end
 
 # Version without exogenous variables, which are assumed to have a zero value

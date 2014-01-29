@@ -19,6 +19,9 @@ function perfect_foresight_simul!(m::Model, endopath::Matrix{Float64}, exopath::
     res = zeros(T*m.n_endo)
 
     Y = vec(endopath)
+
+    d1 = Array(Float64, m.n_endo)
+    jacob = Array(Float64, m.n_endo, m.n_back_mixed + m.n_endo + m.n_fwrd_mixed + m.n_exo)
     
     for iter = 1:maxit
 
@@ -26,7 +29,8 @@ function perfect_foresight_simul!(m::Model, endopath::Matrix{Float64}, exopath::
         i_rows = 1:m.n_endo
         
         for it = 2:T+1
-            (d1, jacob) = m.dynamic_mf(Y[i_cols], exopath[1:m.n_exo, it-1], p)
+            m.dynamic_mf!(Y[i_cols], exopath[1:m.n_exo, it-1], p, d1)
+            m.dynamic_mg!(Y[i_cols], exopath[1:m.n_exo, it-1], p, jacob)
 
             if it == T+1 && it == 2
                 idx = m.n_back_mixed+(1:m.n_endo)

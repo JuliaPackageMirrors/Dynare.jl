@@ -4,8 +4,10 @@ function decision_rules(m::Model, calib::Dict{Symbol, Float64}, steady_state::Ve
     yy = [ steady_state[m.zeta_back_mixed]; steady_state; steady_state[m.zeta_fwrd_mixed] ]
     x = zeros(m.n_exo)
     p = calib2vec(m, calib)
-    (r, jacob) = m.dynamic_mf(yy, x, p)
-    @assert size(jacob) == (m.n_endo, n_dynvars + m.n_exo)
+    r = Array(Float64, m.n_endo)
+    m.dynamic_mf!(yy, x, p, r)
+    jacob = Array(Float64, m.n_endo, n_dynvars + m.n_exo)
+    m.dynamic_mg!(yy, x, p, jacob)
 
     A = jacob[:, 1:n_dynvars]
 
