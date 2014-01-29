@@ -3,8 +3,6 @@
 # Note that we had to introduce an endogenous variable x1 equal to the
 # exogenous variable x, because leads on exogenous variables are not yet supported
 
-require("Dynare")
-
 using Dynare
 
 m =

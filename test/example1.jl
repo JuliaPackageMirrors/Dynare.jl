@@ -1,7 +1,5 @@
 # Translation of example1.mod
 
-require("Dynare")
-
 using Dynare
 
 m =
