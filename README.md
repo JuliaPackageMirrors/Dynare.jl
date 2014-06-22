@@ -20,8 +20,6 @@ Note that the syntax for the model block has been kept as close as possible to
 the original format.
 
 ```
-require("Dynare")
-
 using Dynare
 
 # Create a model object
@@ -91,8 +89,6 @@ Note that we had to introduce an endogenous variable `x1` equal to the
 exogenous variable `x`, because leads on exogenous variables are not yet supported.
 
 ```
-require("Dynare")
-
 using Dynare
 
 m =
