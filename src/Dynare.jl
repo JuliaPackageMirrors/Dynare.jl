@@ -148,7 +148,7 @@ function compute_var_categories(m::Model)
     for t = (:back, :fwrd, :static, :mixed, :back_mixed, :fwrd_mixed, :dynamic)
         nt = symbol(string("n_", t))
         zt = symbol(string("zeta_", t))
-        setfield(m, nt, length(getfield(m, zt)))
+        setfield!(m, nt, length(getfield(m, zt)))
     end
 
     # Compute beta_back and beta_fwrd
