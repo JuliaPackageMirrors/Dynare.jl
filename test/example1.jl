@@ -1,7 +1,5 @@
 # Translation of example1.mod
 
-using Dynare
-
 m =
 @modfile begin
     @var y c k a h b

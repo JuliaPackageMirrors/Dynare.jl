@@ -3,8 +3,6 @@
 # Note that we had to introduce an endogenous variable x1 equal to the
 # exogenous variable x, because leads on exogenous variables are not yet supported
 
-using Dynare
-
 m =
 @modfile begin
     @var c k x1
