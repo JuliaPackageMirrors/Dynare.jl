@@ -1,6 +1,6 @@
 The Dynare package for Julia is distributed under the GNU GPL:
 
-> Copyright © 2013 Dynare Team <dev@dynare.org>
+> Copyright © 2013-2014 Dynare Team <dev@dynare.org>
 > 
 > This program is free software: you can redistribute it and/or modify
 > it under the terms of the GNU General Public License as published by
