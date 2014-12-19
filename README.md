@@ -1,12 +1,12 @@
 ## Dynare for Julia
 
-This package aims at bringing to Julia some of the algorithms incorporated in
-[Dynare](http://www.dynare.org), a platform for solving dynamic economic
-models.
+This package aims at bringing to Julia some of the functionality provided by
+[Dynare](http://www.dynare.org), a platform for solving economic models and in
+particular DSGE models.
 
-Please note that this Julia package is very experimental and very incomplete
-compared to the original Dynare for MATLAB/Octave. Use it only for experiment
-purposes.
+Please note that this Julia package is very incomplete compared to the original
+Dynare for MATLAB/Octave, but hopefully it will become more featureful over
+time.
 
 For the moment the package is only able to compute a model’s steady state,
 first order decision rules and perfect foresight simulations.
